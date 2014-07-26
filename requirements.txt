@@ -3,3 +3,6 @@ Jinja2==2.7.2
 pony==0.5
 psycopg2==2.5.3
 yoyo-migrations==4.2.4
+pandas
+numpy
+scipy
