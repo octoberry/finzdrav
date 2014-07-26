@@ -68,6 +68,7 @@ def action():
                       'type': 'quest',
                       'total': 10,
                       'description': u'Лимит по кредитной карты будешь закрывать за 10 месяцев',
+                      'action_title': u'OK!',
                       'options': [{
                           'id': 1,
                           'type': 'option',
