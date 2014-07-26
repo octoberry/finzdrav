@@ -25,7 +25,7 @@ def feed():
                'cancel_title': u'Не хочу',
                'action_title': u'Да, хочу!'}]
 
-    items = advices + health + articles
+    items = health + advices + articles
     return jsonify(feed=items)
 
 
