@@ -41,11 +41,10 @@ def health():
 
 @app.route("/action", methods=['GET', 'POST'])
 def action():
-    card_id = request.form['card_id']
-    card_type = request.form['card_type']
+    card_id = request.args.get('id')
+    card_type = request.args.get('type')
     cards = {}
-    print card_id
-    print card_type
+
     if card_type == 'health' and card_id == '1':
         advice = [{
                       'id': 1,
