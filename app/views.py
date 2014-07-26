@@ -4,10 +4,10 @@ from pony.orm import db_session
 from server import app
 
 
-@app.route("/cards", methods=['GET', 'POST'])
+@app.route("/feed", methods=['GET', 'POST'])
 @db_session
-def cards():
-    feed = [
+def feed():
+    items = [
             {
                 'type': 'article',
                 'id': 1,
@@ -22,4 +22,4 @@ def cards():
                 'action_title': u'ОК',
             },
             ]
-    return jsonify(feed=feed)
+    return jsonify(feed=items)
