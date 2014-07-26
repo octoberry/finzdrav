@@ -3,3 +3,4 @@ config.py
 .idea
 *.~lock.*
 *.ipynb_checkpoints
+nohup.out

@@ -1,41 +1,65 @@
 # -*- coding: utf-8 -*-
+from __future__ import division
 import json
 import urllib2
+import datetime
 from flask import jsonify, request
+from app import calculus
 from server import app
 
 
-@app.route("/feed", methods=['GET', 'POST'])
-def feed():
-    health = [{'id': 1,
-               'type': 'health',
-               'temperature': 36.6,
-               'description': u"Отлично, молодец, красавчик, продолжай в том же духе!",
-               'action_title': u"Да, продолжаю!"}]
-    articles = [{'id': 1,
-                 'type': 'article',
-                 'title': u'Тестовый заголовок',
-                 'description': u'Тестовый текст',
-                 'action_title': u'Прочесть',
-                 'url': 'http://ya.ru'}]
-    advices = [{'id': 1,
-                'type': 'advice',
-                'img': 'heart',
-                'description': u'Давай добавим жену',
-                'cancel_title': u'Не хочу',
-                'action_title': u'Да, хочу!'}]
+# @app.route("/feed", methods=['GET', 'POST'])
+# def feed():
+#     health = [{'id': 1,
+#                'type': 'health',
+#                'temperature': 36.6,
+#                'description': u"Отлично, молодец, продолжай в том же духе!",
+#                'action_title': u"Да, продолжаю!"}]
+#     articles = [{'id': 2,
+#                  'type': 'article',
+#                  'title': u'Тестовый заголовок',
+#                  'description': u'Тестовый текст',
+#                  'action_title': u'Прочесть',
+#                  'url': 'http://ya.ru'}]
+#     advices = [{'id': 1,
+#                 'type': 'advice',
+#                 'img': 'heart',
+#                 'description': u'Давай добавим жену',
+#                 'cancel_title': u'Не хочу',
+#                 'action_title': u'Да, хочу!'}]
+#
+#     items = health + advices + articles
+#     return jsonify(feed=items)
 
-    items = health + advices + articles
-    return jsonify(feed=items)
+
+def get_temperature():
+    start_date = app.config['START_DATE']
+    end_date = datetime.date.today()
+    scores = [calculus.costs_equability(date_from=datetime.datetime(start_date.year, m, 1),
+                                        date_to=datetime.datetime(start_date.year, m + 1, 1)) for m in
+              range(start_date.month,
+                    end_date.month)]
+    score = len(filter(lambda x: x < app.config['EQUABILITY_LIMIT'], scores)) / len(scores)
+    temperature = (app.config['TEMPERATURE_MAX'] - app.config['TEMPERATURE_NORMAL']) * score + \
+                  app.config['TEMPERATURE_NORMAL']
+    return temperature
 
 
 @app.route("/health", methods=['GET', 'POST'])
 def health():
-    health = {'id': 1,
-              'type': 'health',
-              'temperature': 38.5,
-              'description': u'Кажется у нас проблема',
-              'action_title': u'Доктор, что мне делать?'}
+    temp = get_temperature()
+    if temp < 37:
+        health = {'id': 1,
+                  'type': 'health',
+                  'temperature': temp,
+                  'description': u'Все отлично',
+                  'action_title': u'Ок'}
+    else:
+        health = {'id': 1,
+                  'type': 'health',
+                  'temperature': temp,
+                  'description': u'Кажется у нас проблема',
+                  'action_title': u'Доктор, что мне делать?'}
     return jsonify(health=health)
 
 
@@ -69,16 +93,16 @@ def action():
                       'total': 10,
                       'description': u'Лимит по кредитной карты будешь закрывать за 10 месяцев',
                       'action_title': u'OK!',
-                      'hint_template': u'Отлично, срок уменьшен на $MONTH_NUMBER$ месяцев',
+                      'hint_template': u'Отлично, теперь ты закроешь кредит за $MONTH_NUMBER$ месяцев',
                       'options': [{
-                          'id': 1,
-                          'type': 'option',
-                          'description': u'Уменьшаем средний чек на 100 руб',
-                          'total': -2},{
-                          'id': 2,
-                          'type': 'option',
-                          'description': u'Ты был в барах 8 раз в прошлом месяце, давай сходим в бар на 1 раз меньше',
-                          'total': -1}],
+                                      'id': 1,
+                                      'type': 'option',
+                                      'description': u'Уменьшаем средний чек на 100 руб',
+                                      'total': -2}, {
+                                      'id': 2,
+                                      'type': 'option',
+                                      'description': u'Ты был в барах 8 раз в прошлом месяце, давай сходим в бар на 1 раз меньше',
+                                      'total': -1}],
                   }]
         cards = quests
     return jsonify(cards=cards)
@@ -86,8 +110,8 @@ def action():
 
 @app.route("/spend", methods=['GET', 'POST'])
 def spend():
-    # amount = get_spend('address_name:bar') + get_spend('address_name:cafe') + get_spend('address_name:restoran')
-    amount = get_spend('*')
+    amount = get_spend('address_name:bar') + get_spend('address_name:cafe') + get_spend('address_name:restoran')
+    # amount = get_spend('*')
     return jsonify(bars=amount)
 
 
@@ -96,3 +120,31 @@ def get_spend(query):
     hits = json.loads(var)
     print hits['hits']
     return sum(item['_source']['amount'] for item in hits['hits']['hits'])
+
+
+@app.route("/ruler", methods=['GET', 'POST'])
+def ruler():
+    articles = [{'id': 1,
+                 'type': 'article',
+                 'img': 'tip',
+                 'title': u'Плохие новости',
+                 'description': u'Ты же обещал тратить меньше. Мы же договаривались о среднем чеке баре $VAR1$, а получилось $VAR2$.',
+                 'action_title': u'Ладно',
+                 'replacement': {
+                                     '$VAR1$': u'1000 рублей',
+                                     '$VAR2$': u'1200 рублей'
+                                 }}, {
+                    'id': 2,
+                    'type': 'article',
+                    'img': 'wife_bad',
+                    'title': u'О оу',
+                    'description': u'Кажется твоя вторая половинка недовольна',
+                    'action_title': u'Ой-ой'}]
+    ruler = [{'id': 1,
+              'type': 'ruler',
+              'description': u'Давай тогда сделаем задание проще. Уменьши свои затраты в месяц на MCDONALDS.',
+              'minimum_value': 5000,
+              'maximum_value': 10000,
+              'step': 100,
+              'value': 8000}]
+    return jsonify(cards=articles+ruler)
