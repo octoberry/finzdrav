@@ -33,12 +33,12 @@ from server import app
 
 
 def get_temperature():
-
     start_date = app.config['START_DATE']
     end_date = datetime.date.today()
     scores = [calculus.costs_equability(date_from=datetime.datetime(start_date.year, m, 1),
-                                        date_to=datetime.datetime(start_date.year, m+1, 1)) for m in range(start_date.month,
-                                                                                                           end_date.month)]
+                                        date_to=datetime.datetime(start_date.year, m + 1, 1)) for m in
+              range(start_date.month,
+                    end_date.month)]
     score = len(filter(lambda x: x < app.config['EQUABILITY_LIMIT'], scores)) / len(scores)
     temperature = (app.config['TEMPERATURE_MAX'] - app.config['TEMPERATURE_NORMAL']) * score + \
                   app.config['TEMPERATURE_NORMAL']
@@ -95,14 +95,14 @@ def action():
                       'action_title': u'OK!',
                       'hint_template': u'Отлично, теперь ты закроешь кредит за $MONTH_NUMBER$ месяцев',
                       'options': [{
-                          'id': 1,
-                          'type': 'option',
-                          'description': u'Уменьшаем средний чек на 100 руб',
-                          'total': -2},{
-                          'id': 2,
-                          'type': 'option',
-                          'description': u'Ты был в барах 8 раз в прошлом месяце, давай сходим в бар на 1 раз меньше',
-                          'total': -1}],
+                                      'id': 1,
+                                      'type': 'option',
+                                      'description': u'Уменьшаем средний чек на 100 руб',
+                                      'total': -2}, {
+                                      'id': 2,
+                                      'type': 'option',
+                                      'description': u'Ты был в барах 8 раз в прошлом месяце, давай сходим в бар на 1 раз меньше',
+                                      'total': -1}],
                   }]
         cards = quests
     return jsonify(cards=cards)
@@ -126,11 +126,25 @@ def get_spend(query):
 def ruler():
     articles = [{'id': 1,
                  'type': 'article',
+                 'img': 'tip',
                  'title': u'Плохие новости',
                  'description': u'Ты же обещал тратить меньше. Мы же договаривались о среднем чеке баре $VAR1$, а получилось $VAR2$.',
                  'action_title': u'Ладно',
                  'replacement': [{
-                     'VAR1': u'1000 рублей',
-                     'VAR2': u'1200 рублей'
-                 }]}]
-    return jsonify(cards=articles)
+                                     '$VAR1$': u'1000 рублей',
+                                     '$VAR2$': u'1200 рублей'
+                                 }]}, {
+                    'id': 2,
+                    'type': 'article',
+                    'img': 'wife_bad',
+                    'title': u'О оу',
+                    'description': u'Кажется твоя вторая половинка недовольна',
+                    'action_title': u'Ой-ой'}]
+    ruler = [{'id': 1,
+              'type': 'ruler',
+              'description': u'Давай тогда сделаем задание проще. Уменьши свои затраты в месяц на MCDONALDS.',
+              'minimum_value': 5000,
+              'maximum_value': 10000,
+              'step': 100,
+              'value': 8000}]
+    return jsonify(cards=articles+ruler)
