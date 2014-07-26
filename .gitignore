@@ -1,3 +1,5 @@
 config.py
 *pyc
 .idea
+*.~lock.*
+*.ipynb_checkpoints
