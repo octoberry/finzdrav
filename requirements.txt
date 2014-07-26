@@ -6,3 +6,4 @@ yoyo-migrations==4.2.4
 pandas
 numpy
 scipy
+requests
