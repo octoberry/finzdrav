@@ -7,6 +7,12 @@ from server import app
 @app.route("/feed", methods=['GET', 'POST'])
 @db_session
 def feed():
+
+    health = [{'id': 1,
+               'type': 'health',
+               'temperature': 36.6,
+               'description': u"Отлично, молодец, красавчик, продолжай в том же духе!",
+               'action_title': u"Да, продолжаю!"}]
     articles = [{'id': 1,
                 'type': 'article',
                 'title': u'Тестовый заголовок',
@@ -31,5 +37,5 @@ def feed():
                'description': u'Тестовый текст',
                'action_title': u'Согласен'}]
 
-    items = articles + advices
+    items = health + articles + advices
     return jsonify(feed=items)
