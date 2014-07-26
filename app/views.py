@@ -130,10 +130,10 @@ def ruler():
                  'title': u'Плохие новости',
                  'description': u'Ты же обещал тратить меньше. Мы же договаривались о среднем чеке баре $VAR1$, а получилось $VAR2$.',
                  'action_title': u'Ладно',
-                 'replacement': [{
+                 'replacement': {
                                      '$VAR1$': u'1000 рублей',
                                      '$VAR2$': u'1200 рублей'
-                                 }]}, {
+                                 }}, {
                     'id': 2,
                     'type': 'article',
                     'img': 'wife_bad',
