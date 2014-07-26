@@ -10,7 +10,7 @@ def feed():
 
     health = [{'id': 1,
                'type': 'health',
-               'temperature': 0.5,
+               'temperature': 36.6,
                'description': u"Отлично, молодец, красавчик, продолжай в том же духе!",
                'action_title': u"Да, продолжаю!"}]
     articles = [{'id': 1,
