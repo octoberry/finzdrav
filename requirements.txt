@@ -6,3 +6,4 @@ yoyo-migrations==4.2.4
 pandas
 numpy
 scipy
+python-dateutil==1.5

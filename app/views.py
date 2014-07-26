@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import division
 import json
 import urllib2
+import datetime
 from flask import jsonify, request
+from app import calculus
 from server import app
 
 
@@ -10,7 +13,7 @@ def feed():
     health = [{'id': 1,
                'type': 'health',
                'temperature': 36.6,
-               'description': u"Отлично, молодец, красавчик, продолжай в том же духе!",
+               'description': u"Отлично, молодец, продолжай в том же духе!",
                'action_title': u"Да, продолжаю!"}]
     articles = [{'id': 1,
                  'type': 'article',
@@ -29,13 +32,34 @@ def feed():
     return jsonify(feed=items)
 
 
+def get_temperature():
+
+    start_date = app.config['START_DATE']
+    end_date = datetime.date.today()
+    scores = [calculus.costs_equability(date_from=datetime.datetime(start_date.year, m, 1),
+                                        date_to=datetime.datetime(start_date.year, m+1, 1)) for m in range(start_date.month,
+                                                                                                           end_date.month)]
+    score = len(filter(lambda x: x < app.config['EQUABILITY_LIMIT'], scores)) / len(scores)
+    temperature = (app.config['TEMPERATURE_MAX'] - app.config['TEMPERATURE_NORMAL']) * score + \
+                  app.config['TEMPERATURE_NORMAL']
+    return temperature
+
+
 @app.route("/health", methods=['GET', 'POST'])
 def health():
-    health = {'id': 1,
-              'type': 'health',
-              'temperature': 38.5,
-              'description': u'Кажется у нас проблема',
-              'action_title': u'Доктор, что мне делать?'}
+    temp = get_temperature()
+    if temp < 37:
+        health = {'id': 1,
+                  'type': 'health',
+                  'temperature': temp,
+                  'description': u'Все отлично',
+                  'action_title': u'Ок'}
+    else:
+        health = {'id': 1,
+                  'type': 'health',
+                  'temperature': temp,
+                  'description': u'Кажется у нас проблема',
+                  'action_title': u'Доктор, что мне делать?'}
     return jsonify(health=health)
 
 
@@ -69,7 +93,7 @@ def action():
                       'total': 10,
                       'description': u'Лимит по кредитной карты будешь закрывать за 10 месяцев',
                       'action_title': u'OK!',
-                      'hint_template': u'Отлично, срок уменьшен на $MONTH_NUMBER$ месяцев',
+                      'hint_template': u'Отлично, теперь ты закроешь кредит за $MONTH_NUMBER$ месяцев',
                       'options': [{
                           'id': 1,
                           'type': 'option',
