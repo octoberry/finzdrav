@@ -10,12 +10,13 @@ def feed():
     articles = [{'id': 1,
                 'type': 'article',
                 'title': u'Тестовый заголовок',
+                'description': u'Тестовый текст',
                 'action_title': u'Прочесть',
                 'url': 'http://ya.ru'}]
     advices = [{'id': 1,
                'type': 'advice',
                'title': u'Тестовый заголовок',
-               'text': u'Тестовый текст',
+               'description': u'Тестовый текст',
                'action_title': u'Согласен'}]
 
     items = articles + advices
