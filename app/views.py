@@ -69,6 +69,7 @@ def action():
                       'total': 10,
                       'description': u'Лимит по кредитной карты будешь закрывать за 10 месяцев',
                       'action_title': u'OK!',
+                      'hint_template': u'Отлично, срок уменьшен на $MONTH_NUMBER$ месяцев',
                       'options': [{
                           'id': 1,
                           'type': 'option',
