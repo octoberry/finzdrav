@@ -8,28 +8,28 @@ from app import calculus
 from server import app
 
 
-@app.route("/feed", methods=['GET', 'POST'])
-def feed():
-    health = [{'id': 1,
-               'type': 'health',
-               'temperature': 36.6,
-               'description': u"Отлично, молодец, продолжай в том же духе!",
-               'action_title': u"Да, продолжаю!"}]
-    articles = [{'id': 1,
-                 'type': 'article',
-                 'title': u'Тестовый заголовок',
-                 'description': u'Тестовый текст',
-                 'action_title': u'Прочесть',
-                 'url': 'http://ya.ru'}]
-    advices = [{'id': 1,
-                'type': 'advice',
-                'img': 'heart',
-                'description': u'Давай добавим жену',
-                'cancel_title': u'Не хочу',
-                'action_title': u'Да, хочу!'}]
-
-    items = health + advices + articles
-    return jsonify(feed=items)
+# @app.route("/feed", methods=['GET', 'POST'])
+# def feed():
+#     health = [{'id': 1,
+#                'type': 'health',
+#                'temperature': 36.6,
+#                'description': u"Отлично, молодец, продолжай в том же духе!",
+#                'action_title': u"Да, продолжаю!"}]
+#     articles = [{'id': 2,
+#                  'type': 'article',
+#                  'title': u'Тестовый заголовок',
+#                  'description': u'Тестовый текст',
+#                  'action_title': u'Прочесть',
+#                  'url': 'http://ya.ru'}]
+#     advices = [{'id': 1,
+#                 'type': 'advice',
+#                 'img': 'heart',
+#                 'description': u'Давай добавим жену',
+#                 'cancel_title': u'Не хочу',
+#                 'action_title': u'Да, хочу!'}]
+#
+#     items = health + advices + articles
+#     return jsonify(feed=items)
 
 
 def get_temperature():
@@ -110,8 +110,8 @@ def action():
 
 @app.route("/spend", methods=['GET', 'POST'])
 def spend():
-    # amount = get_spend('address_name:bar') + get_spend('address_name:cafe') + get_spend('address_name:restoran')
-    amount = get_spend('*')
+    amount = get_spend('address_name:bar') + get_spend('address_name:cafe') + get_spend('address_name:restoran')
+    # amount = get_spend('*')
     return jsonify(bars=amount)
 
 
@@ -120,3 +120,17 @@ def get_spend(query):
     hits = json.loads(var)
     print hits['hits']
     return sum(item['_source']['amount'] for item in hits['hits']['hits'])
+
+
+@app.route("/ruler", methods=['GET', 'POST'])
+def ruler():
+    articles = [{'id': 1,
+                 'type': 'article',
+                 'title': u'Плохие новости',
+                 'description': u'Ты же обещал тратить меньше. Мы же договаривались о среднем чеке баре $VAR1$, а получилось $VAR2$.',
+                 'action_title': u'Ладно',
+                 'replacement': [{
+                     'VAR1': u'1000 рублей',
+                     'VAR2': u'1200 рублей'
+                 }]}]
+    return jsonify(cards=articles)
