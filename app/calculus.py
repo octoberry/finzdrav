@@ -69,15 +69,24 @@ def costs_equability(date_from, date_to):
     return _calc_equability_by_sums(df)
 
 def income_sum(date_from, date_to):
+    """
+    Вычисляет суммарный доход за указанный период
+    """
     df = _load_data(salary_csv_path)
     df = _filter_by_dates(df, date_from, date_to, 'Дата операции', lambda x: x.strftime('%Y-%m-%d'))
     return sum(df['Приход'])
 
 def costs_sum(date_from, date_to):
+    """
+    Вычисляет суммарный расход за указанный период
+    """
     df = _get_costs_by_dates(date_from, date_to)
     return sum(df['amount'])
 
 def balance(date_from, date_to):
+    """
+    Вычисляет остаток (разницу между доходом и расходом) за указанный период
+    """
     income = income_sum(date_from, date_to)
     costs = costs_sum(date_from, date_to)
     return income - costs
