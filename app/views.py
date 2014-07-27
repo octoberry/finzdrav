@@ -88,7 +88,8 @@ def action():
                   }]
         cards = advice
     elif card_type == 'advice' and card_id == '2':
-        bar_stats = get_bar_stats()
+        bar_stats = get_bar_stats(date_from=app.config['START_DATE'], date_to=datetime.datetime.today())
+        print bar_stats
         quests = [{
                       'id': 1,
                       'type': 'quest',
