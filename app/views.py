@@ -5,6 +5,7 @@ import urllib2
 import datetime
 from flask import jsonify, request
 from app import calculus
+from app.elastic import get_bar_stats
 from server import app
 
 
@@ -87,6 +88,7 @@ def action():
                   }]
         cards = advice
     elif card_type == 'advice' and card_id == '2':
+        bar_stats = get_bar_stats()
         quests = [{
                       'id': 1,
                       'type': 'quest',
@@ -141,6 +143,7 @@ def ruler():
                     'description': u'Кажется твоя вторая половинка недовольна',
                     'action_title': u'Ой-ой'}]
     ruler = [{'id': 1,
+              'action_title': 'Я справлюсь!',
               'type': 'ruler',
               'description': u'Давай тогда сделаем задание проще. Уменьши свои затраты в месяц на MCDONALDS.',
               'minimum_value': 5000,
