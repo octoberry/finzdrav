@@ -95,7 +95,7 @@ def ruler():
 
     articles = [{'id': 1,
                  'type': 'article',
-                 'img': 'tip',
+                 'img': 'bad_news',
                  'title': u'Плохие новости',
                  'description': u'Ты же обещал тратить меньше. Мы же договаривались о среднем чеке на обеды $VAR1$, а получилось $VAR2$.',
                  'action_title': u'Ладно',
