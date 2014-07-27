@@ -3,34 +3,11 @@ from __future__ import division
 import json
 import urllib2
 import datetime
+from dateutil.relativedelta import relativedelta
 from flask import jsonify, request
 from app import calculus
-from app.elastic import get_bar_stats
+from app.elastic import get_bar_stats, get_mcdonalds_stats
 from server import app
-
-
-# @app.route("/feed", methods=['GET', 'POST'])
-# def feed():
-#     health = [{'id': 1,
-#                'type': 'health',
-#                'temperature': 36.6,
-#                'description': u"Отлично, молодец, продолжай в том же духе!",
-#                'action_title': u"Да, продолжаю!"}]
-#     articles = [{'id': 2,
-#                  'type': 'article',
-#                  'title': u'Тестовый заголовок',
-#                  'description': u'Тестовый текст',
-#                  'action_title': u'Прочесть',
-#                  'url': 'http://ya.ru'}]
-#     advices = [{'id': 1,
-#                 'type': 'advice',
-#                 'img': 'heart',
-#                 'description': u'Давай добавим жену',
-#                 'cancel_title': u'Не хочу',
-#                 'action_title': u'Да, хочу!'}]
-#
-#     items = health + advices + articles
-#     return jsonify(feed=items)
 
 
 def get_temperature():
@@ -88,7 +65,9 @@ def action():
                   }]
         cards = advice
     elif card_type == 'advice' and card_id == '2':
-        bar_stats = get_bar_stats()
+        bar_stats = get_bar_stats(date_from=app.config['START_DATE'], date_to=datetime.datetime.today())
+        bar_stats_monthly = get_bar_stats(date_from=datetime.datetime.today()-relativedelta(months=1),
+                                          date_to=datetime.datetime.today())
         quests = [{
                       'id': 1,
                       'type': 'quest',
@@ -99,42 +78,30 @@ def action():
                       'options': [{
                                       'id': 1,
                                       'type': 'option',
-                                      'description': u'Уменьшаем средний чек на 100 руб',
+                                      'description': u'Ты тратишь на обеды %d рублей, давай уменьшаем средний чек на 100 рублей' % int(bar_stats['avg']),
                                       'total': -2}, {
                                       'id': 2,
                                       'type': 'option',
-                                      'description': u'Ты был в барах 8 раз в прошлом месяце, давай сходим в бар на 1 раз меньше',
+                                      'description': u'Ты был в барах %d раз в прошлом месяце, давай сходим в бар на 5 раз меньше' % int(bar_stats_monthly['count']),
                                       'total': -1}],
                   }]
         cards = quests
     return jsonify(cards=cards)
 
 
-@app.route("/spend", methods=['GET', 'POST'])
-def spend():
-    amount = get_spend('address_name:bar') + get_spend('address_name:cafe') + get_spend('address_name:restoran')
-    # amount = get_spend('*')
-    return jsonify(bars=amount)
-
-
-def get_spend(query):
-    var = urllib2.urlopen("http://95.143.124.220:9200/hack/_search?q=%s" % query).read()
-    hits = json.loads(var)
-    print hits['hits']
-    return sum(item['_source']['amount'] for item in hits['hits']['hits'])
-
-
 @app.route("/ruler", methods=['GET', 'POST'])
 def ruler():
+    bar_stats = get_bar_stats(date_from=app.config['START_DATE'], date_to=datetime.datetime.today())
+
     articles = [{'id': 1,
                  'type': 'article',
                  'img': 'tip',
                  'title': u'Плохие новости',
-                 'description': u'Ты же обещал тратить меньше. Мы же договаривались о среднем чеке баре $VAR1$, а получилось $VAR2$.',
+                 'description': u'Ты же обещал тратить меньше. Мы же договаривались о среднем чеке на обеды $VAR1$, а получилось $VAR2$.',
                  'action_title': u'Ладно',
                  'replacement': {
-                                     '$VAR1$': u'1000 рублей',
-                                     '$VAR2$': u'1200 рублей'
+                                     '$VAR1$': u'%d рублей' % (int(bar_stats['avg']) - 100),
+                                     '$VAR2$': u'900 рублей'
                                  }}, {
                     'id': 2,
                     'type': 'article',
@@ -142,12 +109,16 @@ def ruler():
                     'title': u'О оу',
                     'description': u'Кажется твоя вторая половинка недовольна',
                     'action_title': u'Ой-ой'}]
+
+    mcdonalds_stats_monthly = get_mcdonalds_stats(date_from=datetime.datetime.today()-relativedelta(months=1),
+                                                  date_to=datetime.datetime.today())
+    step = int(mcdonalds_stats_monthly['sum'] / 100)
     ruler = [{'id': 1,
               'action_title': 'Я справлюсь!',
               'type': 'ruler',
               'description': u'Давай тогда сделаем задание проще. Уменьши свои затраты в месяц на MCDONALDS.',
-              'minimum_value': 5000,
-              'maximum_value': 10000,
-              'step': 100,
-              'value': 8000}]
+              'minimum_value': 0,
+              'maximum_value': int(mcdonalds_stats_monthly['sum']),
+              'step': step,
+              'value': int(mcdonalds_stats_monthly['sum']) - step * 2}]
     return jsonify(cards=articles+ruler)
