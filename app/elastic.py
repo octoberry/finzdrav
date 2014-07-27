@@ -80,12 +80,16 @@ def get_bar_stats(date_from, date_to):
 
 
 def get_mcdonalds_stats(date_from, date_to):
+    return get_stats_by_token('MCDONALDS', date_from, date_to)
+
+
+def get_stats_by_token(token, date_from, date_to):
     query = {
       "query": {
         "filtered": {
           "query": {
             "query_string": {
-              "query": "address_name=(*MCDONALDS*)"
+              "query": "address_name=(*%s*)" % token
             }
           }
         }
@@ -129,3 +133,4 @@ if __name__ == "__main__":
     date_to = datetime(2014, 6, 1)
     print get_bar_stats(date_from, date_to)
     print get_mcdonalds_stats(date_from, date_to)
+    print get_stats_by_token('FRESHCAFE', date_from, date_to)
