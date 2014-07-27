@@ -96,7 +96,7 @@ def action():
                   }]
         cards = quests
     elif card_type == 'ruler' and card_id == '1':
-        articles = [{'id': 1,
+        articles = [{'id': 3,
                      'type': 'article',
                      'img': 'good_wife',
                      'title': u'Отлично!',
