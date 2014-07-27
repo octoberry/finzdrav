@@ -9,6 +9,9 @@ base_url = 'http://95.143.124.220:9200/hack'
 
 
 def get_bar_stats(date_from, date_to):
+    """
+    Статистика по расходам в ресторанах за указанный период
+    """
     query = {
       "query": {
         "filtered": {
@@ -80,10 +83,16 @@ def get_bar_stats(date_from, date_to):
 
 
 def get_mcdonalds_stats(date_from, date_to):
+    """
+    Статистика по расходам в McDonalds за указанный пероид
+    """
     return get_stats_by_token('MCDONALDS', date_from, date_to)
 
 
 def get_stats_by_token(token, date_from, date_to):
+    """
+    Статистика расходов по названию транзакций за указанный пероид
+    """
     query = {
       "query": {
         "filtered": {
