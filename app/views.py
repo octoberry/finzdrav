@@ -91,15 +91,17 @@ def action():
 
 @app.route("/ruler", methods=['GET', 'POST'])
 def ruler():
+    bar_stats = get_bar_stats(date_from=app.config['START_DATE'], date_to=datetime.datetime.today())
+
     articles = [{'id': 1,
                  'type': 'article',
                  'img': 'tip',
                  'title': u'Плохие новости',
-                 'description': u'Ты же обещал тратить меньше. Мы же договаривались о среднем чеке баре $VAR1$, а получилось $VAR2$.',
+                 'description': u'Ты же обещал тратить меньше. Мы же договаривались о среднем чеке на обеды $VAR1$, а получилось $VAR2$.',
                  'action_title': u'Ладно',
                  'replacement': {
-                                     '$VAR1$': u'1000 рублей',
-                                     '$VAR2$': u'1200 рублей'
+                                     '$VAR1$': u'%d рублей' % (int(bar_stats['avg']) - 100),
+                                     '$VAR2$': u'900 рублей'
                                  }}, {
                     'id': 2,
                     'type': 'article',
