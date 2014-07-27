@@ -31,17 +31,33 @@ def _get_costs_by_dates(date_from, date_to):
     df = _filter_costs(df)
     return _filter_by_dates(df, date_from, date_to, 'creation_timestamp', lambda x: int(x.strftime('%s')))
 
+def _get_fx(p1, p2):
+    x1, y1 = p1
+    x2, y2 = p2
+    a = (y2 - y1) / (x2 - x1)
+    b = (x2*y1 - x1*y2) / (x2 - x1)
+    return lambda x: a*x + b
+
+def _integrate_diff(fun, x, y):
+    acc = 0
+    for i in x[:-1]:
+        x1, x2 = i, i+1
+        y1, y2 = y[i], y[i+1]
+        fx = _get_fx((x1, y1), (x2, y2))
+        diff = lambda j: abs(fun(j) - fx(j))
+        acc += integrate.quad(diff, x1, x2)[0]
+    return acc
+
 def _calc_equability_by_sums(df):
     avg = np.mean(df.amount)
     cnt = len(df.amount)
     ideal = lambda x: x * avg
-    intq_max = integrate.quad(ideal, 0, cnt)
+    intq_max = integrate.quad(ideal, 0, cnt)[0]
 
-    burn_up = [sum(df.amount[0:i]) for i in xrange(0, cnt+1)]
-    real = interp1d(range(0, cnt+1), burn_up)
-    diff = lambda x: abs(ideal(x) - real(x))
-    intq = integrate.quad(diff, 0, cnt)
-    return intq[0] / intq_max[0]
+    burnup_x = range(0, cnt+1)
+    burnup_y = [sum(df.amount[0:i]) for i in burnup_x]
+    intq_diff = _integrate_diff(ideal, burnup_x, burnup_y)
+    return intq_diff / intq_max
 
 def costs_equability(date_from, date_to):
     """
