@@ -80,7 +80,7 @@ def get_bar_stats(date_from, date_to):
 
 
 def get_mcdonalds_stats(date_from, date_to):
-    return get_stats_by_token('MCDONALDS', date_from, date_to)
+    return get_stats_by_token('FRESHC', date_from, date_to)
 
 
 def get_stats_by_token(token, date_from, date_to):
