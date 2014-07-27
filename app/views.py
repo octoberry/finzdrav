@@ -10,30 +10,6 @@ from app.elastic import get_bar_stats, get_mcdonalds_stats
 from server import app
 
 
-# @app.route("/feed", methods=['GET', 'POST'])
-# def feed():
-#     health = [{'id': 1,
-#                'type': 'health',
-#                'temperature': 36.6,
-#                'description': u"Отлично, молодец, продолжай в том же духе!",
-#                'action_title': u"Да, продолжаю!"}]
-#     articles = [{'id': 2,
-#                  'type': 'article',
-#                  'title': u'Тестовый заголовок',
-#                  'description': u'Тестовый текст',
-#                  'action_title': u'Прочесть',
-#                  'url': 'http://ya.ru'}]
-#     advices = [{'id': 1,
-#                 'type': 'advice',
-#                 'img': 'heart',
-#                 'description': u'Давай добавим жену',
-#                 'cancel_title': u'Не хочу',
-#                 'action_title': u'Да, хочу!'}]
-#
-#     items = health + advices + articles
-#     return jsonify(feed=items)
-
-
 def get_temperature():
     start_date = app.config['START_DATE']
     end_date = datetime.date.today()
@@ -113,19 +89,6 @@ def action():
     return jsonify(cards=cards)
 
 
-@app.route("/spend", methods=['GET', 'POST'])
-def spend():
-    amount = get_spend('address_name:bar') + get_spend('address_name:cafe') + get_spend('address_name:restoran')
-    return jsonify(bars=amount)
-
-
-def get_spend(query):
-    var = urllib2.urlopen("http://95.143.124.220:9200/hack/_search?q=%s" % query).read()
-    hits = json.loads(var)
-    print hits['hits']
-    return sum(item['_source']['amount'] for item in hits['hits']['hits'])
-
-
 @app.route("/ruler", methods=['GET', 'POST'])
 def ruler():
     articles = [{'id': 1,
@@ -147,7 +110,7 @@ def ruler():
 
     mcdonalds_stats_monthly = get_mcdonalds_stats(date_from=datetime.datetime.today()-relativedelta(months=1),
                                                   date_to=datetime.datetime.today())
-    step = int(mcdonalds_stats_monthly['sum'] / 10)
+    step = int(mcdonalds_stats_monthly['sum'] / 100)
     ruler = [{'id': 1,
               'action_title': 'Я справлюсь!',
               'type': 'ruler',
